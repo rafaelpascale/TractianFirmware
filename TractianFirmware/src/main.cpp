@@ -1,6 +1,7 @@
 #include <Arduino.h>
 //#define USE_LORA
 //#define USE_DHT
+//#define USE_DISPLAY
 
 
 #ifdef USE_DHT
@@ -22,16 +23,25 @@
 #define BAND 433E6 //Frequência do radio - exemplo : 433E6, 868E6, 915E6
 #endif
 
+#ifdef USE_DISPLAY
+#include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
+#include "images.h"
+#endif
+
 #ifdef USE_DHT
 #define DHTPIN 35     // Digital pin connected to the DHT sensor 
 #define DHTTYPE    DHT22     // DHT 22 (AM2302)
 DHT_Unified dht(DHTPIN, DHTTYPE);
 #endif
 
-
+#ifdef USE_DISPLAY
 #include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
 #include "images.h"            // Imagem da Tractian 
-
+#define SDA 21   // GPIO5  SCK
+#define SCL 22 // GPIO19 MISO
+#define DEMO_DURATION 3000
+SSD1306Wire display(0x3c, SDA, SCL); 
+#endif
 uint32_t delayMS;
 
 void setup() {
