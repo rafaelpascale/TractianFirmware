@@ -59,21 +59,19 @@ void drawInicio() {
 
   display.setFont(ArialMT_Plain_10);
   display.setTextAlignment(TEXT_ALIGN_CENTER);
-  display.drawString(23, 22, "Ligando"); 
+  display.drawString(22, 22, "Ligando"); 
 }
-
-
-
 
 #endif
 uint32_t delayMS;
 
 void setup() {
   Serial.begin(9600);
+
 #ifdef USE_DISPLAY
   display.init();
   display.flipScreenVertically();
-  display.setFont(ArialMT_Plain_10);
+  drawImageDemo();
 #endif
 
 
@@ -86,6 +84,7 @@ void setup() {
   #endif
 }
 void loop() {
+  
 
   #ifdef USE_DHT
   // Delay between measurements.
