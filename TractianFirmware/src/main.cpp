@@ -1,7 +1,7 @@
 #include <Arduino.h>
-//#define USE_LORA
-//#define USE_DHT
-//#define USE_DISPLAY
+#define USE_LORA
+#define USE_DHT
+#define USE_DISPLAY
 
 
 #ifdef USE_DHT
@@ -32,20 +32,51 @@
 #define DHTPIN 35     // Digital pin connected to the DHT sensor 
 #define DHTTYPE    DHT22     // DHT 22 (AM2302)
 DHT_Unified dht(DHTPIN, DHTTYPE);
+  float temperatura;
+  float umidade;
+  String stemperatura = String("Temperatura :") + String(temperatura);
+  String sumidade = String("Umidade :") + String(umidade);;
 #endif
 
 #ifdef USE_DISPLAY
-#include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
-#include "images.h"            // Imagem da Tractian 
 #define SDA 21   // GPIO5  SCK
 #define SCL 22 // GPIO19 MISO
 #define DEMO_DURATION 3000
 SSD1306Wire display(0x3c, SDA, SCL); 
+
+void drawImageDemo() {
+  display.drawXbm(34, 14, Tractian_Logo_width, Tractian_Logo_height, Tractian_Logo_bits);
+}
+
+void drawData() {
+  display.setFont(ArialMT_Plain_10);
+  display.setTextAlignment(TEXT_ALIGN_CENTER);
+  display.drawString(23, 22, stemperatura);
+  display.drawString(23, 44, sumidade);
+}
+
+void drawInicio() {
+
+  display.setFont(ArialMT_Plain_10);
+  display.setTextAlignment(TEXT_ALIGN_CENTER);
+  display.drawString(23, 22, "Ligando"); 
+}
+
+
+
+
 #endif
 uint32_t delayMS;
 
 void setup() {
   Serial.begin(9600);
+#ifdef USE_DISPLAY
+  display.init();
+  display.flipScreenVertically();
+  display.setFont(ArialMT_Plain_10);
+#endif
+
+
    #ifdef USE_DHT
   dht.begin();
   sensor_t sensor;
@@ -62,8 +93,8 @@ void loop() {
   // Get temperature event and print its value.
   sensors_event_t event;
   dht.temperature().getEvent(&event);
-  float temperatura = event.temperature;
-  float umidade = event.relative_humidity;
+  temperatura = event.temperature;
+  umidade = event.relative_humidity;
   if (isnan(temperatura)) {
     Serial.println(F("Error reading temperature!"));
   }
