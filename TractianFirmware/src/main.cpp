@@ -342,4 +342,5 @@ void loop() {
   #endif
   
   esp_deep_sleep_start();
+  ESP.deepSleep(60000000);//Dorme por 60 segundos 
 }
