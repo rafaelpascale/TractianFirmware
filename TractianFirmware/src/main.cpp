@@ -188,7 +188,13 @@ void print_wakeup_reason(){
 
   switch(wakeup_reason)
   {
-    case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break; 
+    case ESP_SLEEP_WAKEUP_EXT0 : Serial.println("Wakeup caused by external signal using RTC_IO"); break;
+    case ESP_SLEEP_WAKEUP_EXT1 : Serial.println("Wakeup caused by external signal using RTC_CNTL"); break;
+    case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break;
+    case ESP_SLEEP_WAKEUP_TOUCHPAD : Serial.println("Wakeup caused by touchpad"); break;
+    case ESP_SLEEP_WAKEUP_ULP : Serial.println("Wakeup caused by ULP program"); break;
+    default : Serial.printf("Wakeup was not caused by deep sleep: %d\n",wakeup_reason); break;
+  
     }
 }
 
@@ -205,7 +211,7 @@ void setup() {
   Serial.begin(115200);
    ++bootCount;//incrementa o numero de vezes que o BOOT ocorreu
    Serial.println("Numero de Boots: " + String(bootCount));
-  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR); // tempo do deep sleep
   Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
 
 
@@ -217,9 +223,9 @@ void setup() {
 #endif
 
   #ifdef USE_LORA
-  SPI.begin(SCK,MISO,MOSI,SS); 
+  SPI.begin(SCK,MISO,MOSI,SS); // Configuração de pinagem do Lora 
   LoRa.setPins(SS,RST,DI00); 
-  LoRa.begin(BAND);
+  LoRa.begin(BAND);// inicia com 915Mhz, permitida no Brasil 
   if (!LoRa.begin(BAND)) {
     Serial.println(F("Erro ao Inciar o Lora "));
     while (true);}
@@ -228,8 +234,8 @@ void setup() {
    #ifdef USE_DHT
   dht.begin();
   sensor_t sensor;
-  dht.temperature().getSensor(&sensor);
-  dht.humidity().getSensor(&sensor);
+  dht.temperature().getSensor(&sensor);// lendo os dados de temperatura
+  dht.humidity().getSensor(&sensor);// lendo os dados de umidade
   delayMS = sensor.min_delay / 1000;
   #endif
 
@@ -246,7 +252,7 @@ void setup() {
                       
   characteristicTX->addDescriptor(new BLE2902());
 
-  // Create a BLE Characteristic para recebimento de dados
+  // Cria BLE Characteristic para recebimento de dados
   BLECharacteristic *characteristic = service->createCharacteristic(
                                          CHARACTERISTIC_UUID_RX,
                                          BLECharacteristic::PROPERTY_WRITE
@@ -268,12 +274,12 @@ void setup() {
 */
 
 void loop() {
-  unsigned long currentMillis = millis();
+  unsigned long currentMillis = millis(); // variavel mills de tempo
 
   #ifdef USE_DISPLAY
     if (currentMillis - previousMillis >= 3000){
     previousMillis = currentMillis;
-     drawImageDemo();
+     drawImageDemo(); // Imprimi na tela OLED no Logan na TRACTIAN que estava no e-mail
       }
    #endif
 
@@ -283,9 +289,9 @@ void loop() {
   // Get temperature event and print its value.
   sensors_event_t event;
   dht.temperature().getEvent(&event);
-  temperatura = event.temperature;
-  umidade = event.relative_humidity;
-  if (isnan(temperatura)) {
+  temperatura = event.temperature; // le os dados de temperatura 
+  umidade = event.relative_humidity; // le os dados de umidade
+  if (isnan(temperatura)) {// verifica se a temp nao e zero
     Serial.println(F("Erro ao medir Temperatura!"));
   }
   else {
@@ -334,5 +340,7 @@ void loop() {
 
   }
   #endif
-  esp_deep_sleep_start();
+  
+  esp_deep_sleep_start(); // Inicia o deep sleep, se nao iniciar a função de baixo inicia para 60 segundos 
+  ESP.deepSleep(uS_TO_S_FACTOR* TIME_TO_SLEEP);//Dorme por 60 segundos 
 }
