@@ -21,6 +21,11 @@ Empresa Tracitan
 
 // Variáveis Globais 
 #define ESP_getChipId()   ((uint32_t)ESP.getEfuseMac())
+#define uS_TO_S_FACTOR 1000000  /* Conversion factor for micro seconds to seconds */
+#define TIME_TO_SLEEP  60        /* Time ESP32 will go to sleep (in seconds) */
+RTC_DATA_ATTR int bootCount = 0;
+
+
 
 // Bibliotecas do DHT
 #ifdef USE_DHT
@@ -179,6 +184,17 @@ class CharacteristicCallbacks: public BLECharacteristicCallbacks {
 };
 #endif
 
+void print_wakeup_reason(){
+  esp_sleep_wakeup_cause_t wakeup_reason;
+  wakeup_reason = esp_sleep_get_wakeup_cause();
+
+  switch(wakeup_reason)
+  {
+    case ESP_SLEEP_WAKEUP_TIMER : Serial.println("Wakeup caused by timer"); break; 
+    }
+}
+
+
 uint32_t delayMS;
 unsigned long previousMillis = 0; // variavel da função mills
 
@@ -188,7 +204,9 @@ unsigned long previousMillis = 0; // variavel da função mills
 ************************************************************************************************************
 */
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
+  Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
 
 #ifdef USE_DISPLAY
   display.init();
@@ -315,5 +333,5 @@ void loop() {
 
   }
   #endif
-
+  esp_deep_sleep_start();
 }
