@@ -25,8 +25,6 @@ Empresa Tracitan
 #define TIME_TO_SLEEP  60        /* Time ESP32 will go to sleep (in seconds) */
 RTC_DATA_ATTR int bootCount = 0;
 
-
-
 // Bibliotecas do DHT
 #ifdef USE_DHT
 #include <Adafruit_Sensor.h>
@@ -205,8 +203,11 @@ unsigned long previousMillis = 0; // variavel da função mills
 */
 void setup() {
   Serial.begin(115200);
+   ++bootCount;//incrementa o numero de vezes que o BOOT ocorreu
+   Serial.println("Numero de Boots: " + String(bootCount));
   esp_sleep_enable_timer_wakeup(TIME_TO_SLEEP * uS_TO_S_FACTOR);
   Serial.println("Setup ESP32 to sleep for every " + String(TIME_TO_SLEEP) + " Seconds");
+
 
 #ifdef USE_DISPLAY
   display.init();
