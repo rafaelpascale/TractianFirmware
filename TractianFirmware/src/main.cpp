@@ -341,6 +341,6 @@ void loop() {
   }
   #endif
   
-  esp_deep_sleep_start();
-  ESP.deepSleep(60000000);//Dorme por 60 segundos 
+  esp_deep_sleep_start(); // Inicia o deep sleep, se nao iniciar a função de baixo inicia para 60 segundos 
+  ESP.deepSleep(uS_TO_S_FACTOR* TIME_TO_SLEEP);//Dorme por 60 segundos 
 }
