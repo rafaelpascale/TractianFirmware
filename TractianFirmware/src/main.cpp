@@ -109,15 +109,12 @@ void setup() {
 
   #ifdef USE_LORA
   SPI.begin(SCK,MISO,MOSI,SS); 
-    LoRa.setPins(SS,RST,DI00); 
+  LoRa.setPins(SS,RST,DI00); 
   LoRa.begin(BAND);
-  if (!LoRa.begin(BAND))
-  {
+  if (!LoRa.begin(BAND)) {
     Serial.println(F("Erro ao Inciar o Lora "));
-    while (true);
-  }
+    while (true);}
   #endif
-
 
    #ifdef USE_DHT
   dht.begin();
@@ -179,7 +176,8 @@ void loop() {
    #endif
 
   #ifdef USE_LORA
-   sendPacket();
+   for (int i = 0; i <= 10; i++) {
+   sendPacket();}
   #endif
 
 }
