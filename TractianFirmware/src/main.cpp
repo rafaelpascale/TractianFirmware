@@ -298,7 +298,7 @@ void loop() {
   char uString[8]; 
   dtostrf(umidade, 1, 2, uString); // float_val, min_width, digits_after_decimal, char_buffer
 
-  characteristicTX->setValue(tString + "C"); //seta o valor que a caracteristica notificará (enviar)       
+  characteristicTX->setValue(tString); //seta o valor que a caracteristica notificará (enviar)       
   characteristicTX->notify(); // Envia o valor para o smartphone  
 
   characteristicTX->setValue(uString); //seta o valor que a caracteristica notificará (enviar)       
