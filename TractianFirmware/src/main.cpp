@@ -3,6 +3,8 @@ Programa de Medição de Temperatura e Umidade com o Sensor DHT22
 Dados de Temperatura e Umidade sendo enviados por Lora para uma distancia de ate 4,7km
 A capacidade maxima de envio Lora é de 256Bytes, para arquivos maiores é preciso dividir o arquivo antes do envio
 Os dados de temperatura e umidade estao sendo mostrados no display OLED
+Os dados de temperatura e umidade estao sendo enviados tambem por BLE
+Uso do deep Sleep para economizar bateria
 Autor Rafael Pascale 09/04/22
 Empresa Tracitan 
 */
@@ -10,19 +12,24 @@ Empresa Tracitan
 #include <Arduino.h>
 #include <WiFi.h>
 
-
-#define USE_LORA
+// Definiçoes do que será utilizado
+//** A Definição do DHT deve estar sempre funcionando//
 #define USE_DHT
+#define USE_LORA
 #define USE_DISPLAY
 #define USE_BLE
 
+// Variáveis Globais 
 #define ESP_getChipId()   ((uint32_t)ESP.getEfuseMac())
+
+// Bibliotecas do DHT
 #ifdef USE_DHT
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
 #include <DHT_U.h>
 #endif
 
+// Bibliotecas do Lora
 #ifdef USE_LORA
 #include <SPI.h>
 #include <LoRa.h>
@@ -36,11 +43,13 @@ Empresa Tracitan
 #define BAND 915E6 //Frequência do radio - exemplo : 433E6, 868E6, 915E6
 #endif
 
+// Bibliotecas do OLED
 #ifdef USE_DISPLAY
 #include "SSD1306Wire.h"        // legacy: #include "SSD1306.h"
 #include "images.h"             // Imagem do Logo da Tractian
 #endif
 
+// Bibliotecas do BLE
 #ifdef USE_BLE
 #include <BLEDevice.h>
 #include <BLEServer.h>
@@ -48,6 +57,7 @@ Empresa Tracitan
 #include <BLE2902.h>
 #endif
 
+// Variveis e definições do DHT
 #ifdef USE_DHT
 #define DHTPIN 35     // Digital pin connected to the DHT sensor 
 #define DHTTYPE    DHT22     // DHT 22 (AM2302)
@@ -59,6 +69,7 @@ DHT_Unified dht(DHTPIN, DHTTYPE);
 #endif
 
 
+// Variveis e definições do Lora
 #ifdef USE_LORA
 String mac = WiFi.macAddress();
 String packet = String(mac) + ("|")+ String(temperatura) + ("|")+ String(umidade);   //variável usada para armazenar a string enviada, ao final ela é concatenada com a variável "values" abaixo
@@ -72,6 +83,7 @@ void sendPacket()
 #endif
 
 
+// Variveis e definições do OLED
 
 #ifdef USE_DISPLAY
 #define SDA 21   // GPIO5  SCK
@@ -103,6 +115,7 @@ void drawInicio() {
 #endif
 
 
+// Variveis e definições do BLE
 
 #ifdef USE_BLE
 BLECharacteristic *characteristicTX; //através desse objeto iremos enviar dados para o client
@@ -166,12 +179,8 @@ class CharacteristicCallbacks: public BLECharacteristicCallbacks {
 };
 #endif
 
-
-
-
-
 uint32_t delayMS;
-unsigned long previousMillis = 0;
+unsigned long previousMillis = 0; // variavel da função mills
 
 /*
 ************************************************************************************************************
